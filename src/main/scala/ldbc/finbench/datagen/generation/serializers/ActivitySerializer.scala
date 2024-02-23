@@ -20,6 +20,236 @@ class ActivitySerializer(sink: RawSink)(implicit spark: SparkSession) extends Se
 
   private def formattedDouble(d: Double): String = f"$d%.2f"
 
+  def writeCountry(self: RDD[Country]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write Country") {
+      val rawCountries = self.map { p: Country =>
+        CountryRaw(p.getParentName, p.getCountryName)
+      }
+      spark.createDataFrame(rawCountries).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "country").toString)
+    }
+  }
+
+  def writeCity(self: RDD[City]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write City") {
+      val rawCities = self.map { p: City =>
+        CityRaw(p.getParentName, p.getCityName)
+      }
+      spark.createDataFrame(rawCities).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "city").toString)
+    }
+  }
+
+  def writeAccountLevel(self: RDD[AccountLevel]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write AccountLevel") {
+      val rawAccountLevels = self.map { p: AccountLevel =>
+        AccountLevelRaw(p.getParentName, p.getLevelName)
+      }
+      spark.createDataFrame(rawAccountLevels).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "accountlevel").toString)
+    }
+  }
+
+  def writeAccountType(self: RDD[AccountType]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write AccountType") {
+      val rawAccountTypes = self.map { p: AccountType =>
+        AccountTypeRaw(p.getParentName, p.getTypeName)
+      }
+      spark.createDataFrame(rawAccountTypes).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "accounttype").toString)
+    }
+  }
+
+  def writeBusinessType(self: RDD[BusinessType]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write BusinessType") {
+      val rawBusinessType = self.map { p: BusinessType =>
+        BusinessTypeRaw(p.getParentName, p.getTypeName)
+      }
+      spark.createDataFrame(rawBusinessType).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "businesstype").toString)
+    }
+  }
+
+  def writeEmail(self: RDD[Email]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write Email") {
+      val rawEmail = self.map { p: Email =>
+        BusinessTypeRaw(p.getParentName, p.getTypeName)
+      }
+      spark.createDataFrame(rawEmail).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "email").toString)
+    }
+  }
+
+  def writeLoanUsage(self: RDD[LoanUsage]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write LoanUsage") {
+      val rawLoanUsage = self.map { p: LoanUsage =>
+        LoanUsageRaw(p.getParentName, p.getTypeName)
+      }
+      spark.createDataFrame(rawLoanUsage).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "loanusage").toString)
+    }
+  }
+
+  def writeMediumType(self: RDD[MediumType]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write MediumType") {
+      val rawMediumType = self.map { p: MediumType =>
+        MediumTypeRaw(p.getParentName, p.getTypeName)
+      }
+      spark.createDataFrame(rawMediumType).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "mediumtype").toString)
+    }
+  }
+
+  def writeRiskLevel(self: RDD[RiskLevel]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write RiskLevel") {
+      val rawRiskLevel = self.map { p: RiskLevel =>
+        RiskLevelRaw(p.getParentName, p.getLevelName)
+      }
+      spark.createDataFrame(rawRiskLevel).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "risklevel").toString)
+    }
+  }
+
+  def writeUrl(self: RDD[Url]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write Url") {
+      val rawUrl = self.map { p: Url =>
+        UrlRaw(p.getParentName, p.getUrlName)
+      }
+      spark.createDataFrame(rawUrl).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "url").toString)
+    }
+  }
+
+  def writeAccountHasAccountLevel(self: RDD[AccountHasAccountLevel]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write AccountHasAccountLevel") {
+      val rawAccountHasAccountLevel = self.map { p: AccountHasAccountLevel =>
+        AccountHasAccountLevelRaw(p.getAccount.getAccountId, p.getAccountLevel.getLevelName)
+      }
+      spark.createDataFrame(rawAccountHasAccountLevel).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "account_has_accountlevel").toString)
+    }
+  }
+
+  def writeAccountHasAccountType(self: RDD[AccountHasAccountType]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write AccountHasAccountLevel") {
+      val rawAccountHasAccountType = self.map { p: AccountHasAccountType =>
+        AccountHasAccountTypeRaw(p.getAccount.getAccountId, p.getAccountType.getTypeName)
+      }
+      spark.createDataFrame(rawAccountHasAccountType).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "account_has_accounttype").toString)
+    }
+  }
+
+  def writeCompanyHasBusinessType(self: RDD[CompanyHasBusinessType]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write CompanyHasBusinessType") {
+      val rawCompanyHasBusinessType = self.map { p: CompanyHasBusinessType =>
+        CompanyHasBusinessTypeRaw(p.getCompany.getCompanyId, p.getBusinessType.getTypeName)
+      }
+      spark.createDataFrame(rawCompanyHasBusinessType).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "company_has_businesstype").toString)
+    }
+  }
+
+  def writeCompanyBaseCity(self: RDD[CompanyBaseCity]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write CompanyBaseCity") {
+      val rawCompanyBaseCity = self.map { p: CompanyBaseCity =>
+        CompanyBaseCityRaw(p.getCompany.getCompanyId, p.getCity.getCityName)
+      }
+      spark.createDataFrame(rawCompanyBaseCity).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "company_base_city").toString)
+    }
+  }
+
+  def writeCompanyBaseCountry(self: RDD[CompanyBaseCountry]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write CompanyBaseCountry") {
+      val rawCompanyBaseCountry = self.map { p: CompanyBaseCountry =>
+        CompanyBaseCountryRaw(p.getCompany.getCompanyId, p.getCountry.getCountryName)
+      }
+      spark.createDataFrame(rawCompanyBaseCountry).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "company_base_country").toString)
+    }
+  }
+
+  def writeAccountFreqLoginMediumType(self: RDD[AccountFreqLoginMediumType]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write AccountFreqLoginMediumType") {
+      val rawAccountFreqLoginMediumType = self.map { p: AccountFreqLoginMediumType =>
+        AccountFreqLoginMediumTypeRaw(p.getAccount.getAccountId, p.getMediumType.getTypeName)
+      }
+      spark.createDataFrame(rawAccountFreqLoginMediumType).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "account_freqlogin_mediumtype").toString)
+    }
+  }
+
+  def writeAccountHasEmail(self: RDD[AccountHasEmail]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write AccountHasEmail") {
+      val rawAccountHasEmail = self.map { p: AccountHasEmail =>
+        AccountHasEmailRaw(p.getAccount.getAccountId, p.getEmail.getTypeName)
+      }
+      spark.createDataFrame(rawAccountHasEmail).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "account_has_email").toString)
+    }
+  }
+
+  def writeCompanyHasUrl(self: RDD[CompanyHasUrl]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write CompanyHasUrl") {
+      val rawCompanyHasUrl = self.map { p: CompanyHasUrl =>
+        CompanyHasUrlRaw(p.getCompany.getCompanyId, p.getUrl.getUrlName)
+      }
+      spark.createDataFrame(rawCompanyHasUrl).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "company_has_url").toString)
+    }
+  }
+
+  def writeLoanHasLoanUsage(self: RDD[LoanHasLoanUsage]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write LoanHasLoanUsage") {
+      val rawLoanHasLoanUsage = self.map { p: LoanHasLoanUsage =>
+        LoanHasLoanUsageRaw(p.getLoan.getLoanId, p.getLoanUsage.getTypeName)
+      }
+      spark.createDataFrame(rawLoanHasLoanUsage).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "loan_has_loanusage").toString)
+    }
+  }
+
+  def writeMediumHasMediumType(self: RDD[MediumHasMediumType]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write MediumHasMediumType") {
+      val rawMediumHasMediumType = self.map { p: MediumHasMediumType =>
+        MediumHasMediumTypeRaw(p.getMedium.getMediumId, p.getMediumType.getTypeName)
+      }
+      spark.createDataFrame(rawMediumHasMediumType).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "medium_has_mediumtype").toString)
+    }
+  }
+
+  def writeMediumHasRiskLevel(self: RDD[MediumHasRiskLevel]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write MediumHasRiskLevel") {
+      val rawMediumHasRiskLevel = self.map { p: MediumHasRiskLevel =>
+        MediumHasRiskLevelRaw(p.getMedium.getMediumId, p.getRiskLevel.getLevelName)
+      }
+      spark.createDataFrame(rawMediumHasRiskLevel).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "medium_has_risklevel").toString)
+    }
+  }
+
+  def writePersonLiveInCity(self: RDD[PersonLiveInCity]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write PersonLiveInCity") {
+      val rawPersonLiveInCity = self.map { p: PersonLiveInCity =>
+        PersonLiveInCityRaw(p.getPerson.getPersonId, p.getCity.getCityName)
+      }
+      spark.createDataFrame(rawPersonLiveInCity).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "person_livein_city").toString)
+    }
+  }
+
+  def writePersonLiveInCountry(self: RDD[PersonLiveInCountry]): Unit = {
+    SparkUI.jobAsync("Write Semantic Property Graph", "Write PersonLiveInCity") {
+      val rawPersonLiveInCountry = self.map { p: PersonLiveInCountry =>
+        PersonLiveInCountryRaw(p.getPerson.getPersonId, p.getCountry.getCountryName)
+      }
+      spark.createDataFrame(rawPersonLiveInCountry).write.format(sink.format.toString).options(options)
+        .save((pathPrefix / "person_livein_country").toString)
+    }
+  }
+
   def writePersonWithActivities(self: RDD[Person]): Unit = {
     SparkUI.jobAsync("Write Person", "Write Person") {
       val rawPersons = self.map { p: Person =>

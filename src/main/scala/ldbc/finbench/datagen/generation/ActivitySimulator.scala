@@ -1,7 +1,9 @@
 package ldbc.finbench.datagen.generation
 
 import ldbc.finbench.datagen.entities.nodes._
-import ldbc.finbench.datagen.generation.generators.{ActivityGenerator, SparkCompanyGenerator, SparkMediumGenerator, SparkPersonGenerator}
+import ldbc.finbench.datagen.entities.edges._
+import ldbc.finbench.datagen.generation.dictionary._
+import ldbc.finbench.datagen.generation.generators._
 import ldbc.finbench.datagen.generation.serializers.ActivitySerializer
 import ldbc.finbench.datagen.io.Writer
 import ldbc.finbench.datagen.io.raw.RawSink
@@ -15,7 +17,7 @@ import scala.collection.JavaConverters._
 // TODO:
 //  - refactor using common GraphDef to make the code less verbose
 //  - repartition with the partition option
-class ActivitySimulator(sink: RawSink)(implicit spark: SparkSession) extends Writer[RawSink] with Serializable with Logging {
+class ActivitySimulator(sink: RawSink, semanticNodesEnable: Boolean, semanticEdgeEnable: Boolean)(implicit spark: SparkSession) extends Writer[RawSink] with Serializable with Logging {
   private val parallelism = spark.sparkContext.defaultParallelism
   private val blockSize: Int = DatagenParams.blockSize
 
@@ -31,6 +33,20 @@ class ActivitySimulator(sink: RawSink)(implicit spark: SparkSession) extends Wri
   private val mediumNum: Long = DatagenParams.numMediums
   private val mediumPartitions = Some(Math.min(Math.ceil(mediumNum.toDouble / blockSize).toLong, parallelism).toInt)
 
+  // =========================================
+  // extension for semantic property graph
+  // =========================================
+  private val dictCommonPartitions = Some(1)
+  private val coutries = PlaceDictionary.INSTANCE.getCountries
+  private val cities = PlaceDictionary.INSTANCE.getCities
+  private val accountLevels = Dictionaries.accountLevels.getResources
+  private val accountTypes = Dictionaries.accountTypes.getResources
+  private val businessTypes = Dictionaries.businessTypes.getResources
+  private val emails = Dictionaries.emails.getResources
+  private val loanUsages = Dictionaries.loanUsages.getResources
+  private val mediumTypes = Dictionaries.mediumNames.getResources
+  private val riskLevels = Dictionaries.riskLevels.getResources
+  private val urls = Dictionaries.urls.getResources
 
   def simulate(): Unit = {
     val personRdd: RDD[Person] = SparkPersonGenerator(personNum, blockSize, personPartitions)
@@ -98,6 +114,61 @@ class ActivitySimulator(sink: RawSink)(implicit spark: SparkSession) extends Wri
     activitySerializer.writeWithdraw(withdrawRdd)
     activitySerializer.writeInvest(investRdd)
     activitySerializer.writeLoanActivities(loanRdd, depositsRdd, repaysRdd, loanTrasfersRdd)
+
+    // =========================================
+    // extension for semantic property graph
+    // =========================================
+    if (semanticNodesEnable) {
+      val countryRdd: RDD[Country] = SparkCountryGenerator(coutries.asScala, dictCommonPartitions)
+      activitySerializer.writeCountry(countryRdd)
+      val cityRdd: RDD[City] = SparkCityGenerator(cities.asScala, dictCommonPartitions)
+      activitySerializer.writeCity(cityRdd)
+      val accountLevelRdd: RDD[AccountLevel] = SparkAccountLevelGenerator(accountLevels.asScala.toList, dictCommonPartitions)
+      activitySerializer.writeAccountLevel(accountLevelRdd)
+      val accountTypeRdd: RDD[AccountType] = SparkAccountTypeGenerator(accountTypes.values().asScala.toList, dictCommonPartitions)
+      activitySerializer.writeAccountType(accountTypeRdd)
+      val businessTypeRdd: RDD[BusinessType] = SparkBusinessTypeGenerator(businessTypes.values().asScala.toList, dictCommonPartitions)
+      activitySerializer.writeBusinessType(businessTypeRdd)
+      val emailRdd: RDD[Email] = SparkEmailGenerator(emails.asScala.toList, dictCommonPartitions)
+      activitySerializer.writeEmail(emailRdd)
+      val loanUsageRdd: RDD[LoanUsage] = SparkLoanUsageGenerator(loanUsages.values().asScala.toList, dictCommonPartitions)
+      activitySerializer.writeLoanUsage(loanUsageRdd)
+      val mediumTypeRdd: RDD[MediumType] = SparkMediumTypeGenerator(mediumTypes.values().asScala.toList, dictCommonPartitions)
+      activitySerializer.writeMediumType(mediumTypeRdd)
+      val riskLevelRdd: RDD[RiskLevel] = SparkRiskLevelGenerator(riskLevels.values().asScala.toList, dictCommonPartitions)
+      activitySerializer.writeRiskLevel(riskLevelRdd)
+      val urlRdd: RDD[Url] = SparkUrlGenerator(urls.values().asScala.toList, dictCommonPartitions)
+      activitySerializer.writeUrl(urlRdd)
+    }
+
+    if (semanticEdgeEnable) {
+      val accountHasAccountLevelRdd: RDD[AccountHasAccountLevel] = SparkAccountHasAccountLevelGenerator(accountRdd, personPartitions)
+      activitySerializer.writeAccountHasAccountLevel(accountHasAccountLevelRdd)
+      val accountHasAccountTypeRdd: RDD[AccountHasAccountType] = SparkAccountHasAccountTypeGenerator(accountRdd, personPartitions)
+      activitySerializer.writeAccountHasAccountType(accountHasAccountTypeRdd)
+      val companyHasBusinessTypeRdd: RDD[CompanyHasBusinessType] = SparkCompanyHasBusinessTypeGenerator(companyRdd, companyPartitions)
+      activitySerializer.writeCompanyHasBusinessType(companyHasBusinessTypeRdd)
+      val companyBaseCityRdd: RDD[CompanyBaseCity] = SparkCompanyBaseCityGenerator(companyRdd, companyPartitions)
+      activitySerializer.writeCompanyBaseCity(companyBaseCityRdd)
+      val companyBaseCountryRdd: RDD[CompanyBaseCountry] = SparkCompanyBaseCountryGenerator(companyRdd, companyPartitions)
+      activitySerializer.writeCompanyBaseCountry(companyBaseCountryRdd)
+      val personLiveInCityRdd: RDD[PersonLiveInCity] = SparkPersonLiveInCityGenerator(personRdd, personPartitions)
+      activitySerializer.writePersonLiveInCity(personLiveInCityRdd)
+      val personLiveInCountryRdd: RDD[PersonLiveInCountry] = SparkPersonLiveInCountryGenerator(personRdd, personPartitions)
+      activitySerializer.writePersonLiveInCountry(personLiveInCountryRdd)
+      val accountFreqLoginMediumTypeRdd: RDD[AccountFreqLoginMediumType] = SparkAccountFreqLoginMediumTypeGenerator(accountRdd, personPartitions)
+      activitySerializer.writeAccountFreqLoginMediumType(accountFreqLoginMediumTypeRdd)
+      val accountHasEmailRdd: RDD[AccountHasEmail] = SparkAccountHasEmailGenerator(accountRdd, personPartitions)
+      activitySerializer.writeAccountHasEmail(accountHasEmailRdd)
+      val companyHasUrlRdd: RDD[CompanyHasUrl] = SparkCompanyHasUrlGenerator(companyRdd, companyPartitions)
+      activitySerializer.writeCompanyHasUrl(companyHasUrlRdd)
+      val loanHasLoanUsageRdd: RDD[LoanHasLoanUsage] = SparkLoanHasLoanUsageGenerator(loanRdd, personPartitions)
+      activitySerializer.writeLoanHasLoanUsage(loanHasLoanUsageRdd)
+      val mediumHasMediumTypeRdd: RDD[MediumHasMediumType] = SparkMediumHasMediumTypeGenerator(mediumRdd, mediumPartitions)
+      activitySerializer.writeMediumHasMediumType(mediumHasMediumTypeRdd)
+      val mediumHasRiskLevelRdd: RDD[MediumHasRiskLevel] = SparkMediumHasRiskLevelGenerator(mediumRdd, mediumPartitions)
+      activitySerializer.writeMediumHasRiskLevel(mediumHasRiskLevelRdd)
+    }
   }
 
   private def mergeAccounts(persons: RDD[Person], companies: RDD[Company]): RDD[Account] = {

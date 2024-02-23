@@ -7,7 +7,7 @@ import scala.reflect.ClassTag
 
 object GenerationStage extends DatagenStage with Logging {
 
-  case class Args(scaleFactor: String = "0.1", partitionsOpt: Option[Int] = None, outputDir: String = "out", format: String = "csv")
+  case class Args(scaleFactor: String = "0.1", partitionsOpt: Option[Int] = None, outputDir: String = "out", format: String = "csv", semanticNodesEnable: Boolean = false, semanticEdgesEnable: Boolean = false)
 
   override type ArgsType = Args
 
@@ -23,7 +23,7 @@ object GenerationStage extends DatagenStage with Logging {
 
     // TODO: It's better to define multiple job groups.
     SparkUI.job(implicitly[ClassTag[ActivitySimulator]].runtimeClass.getSimpleName, "serialize Finbench data") {
-      val simulator = new ActivitySimulator(RawSink(args.outputDir, format, args.partitionsOpt))
+      val simulator = new ActivitySimulator(RawSink(args.outputDir, format, args.partitionsOpt), args.semanticNodesEnable, args.semanticEdgesEnable)
       simulator.simulate()
     }
   }

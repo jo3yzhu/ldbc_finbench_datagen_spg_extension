@@ -76,6 +76,8 @@ public class PlaceDictionary {
 
     private Map<String, Integer> countryNames;
 
+    public static PlaceDictionary INSTANCE = new PlaceDictionary();
+
     public PlaceDictionary() {
         this.countryNames = new HashMap<>();
         this.cityNames = new HashMap<>();
@@ -90,8 +92,12 @@ public class PlaceDictionary {
         return places.keySet();
     }
 
-    public List<Integer> getCountries() {
-        return new ArrayList<>(countries);
+    public Map<String, Integer> getCountries() {
+        return countryNames;
+    }
+
+    public Map<String, Integer> getCities() {
+        return cityNames;
     }
 
     public String getPlaceName(int placeId) {

@@ -7,6 +7,79 @@ import org.joda.time.DateTime
   */
 object raw {
 
+  // =========================================
+  // extension for semantic property graph
+  // =========================================
+
+  // define country entity
+  case class CountryRaw(parentName: String, countryName: String)
+
+  // define city entity
+  case class CityRaw(parentName: String, cityName: String)
+
+  // define account level entity
+  case class AccountLevelRaw(parentName: String, levelName: String)
+
+  // define account type entity
+  case class AccountTypeRaw(parentName: String, typeName: String)
+
+  // define business type entity
+  case class BusinessTypeRaw(parentName: String, typeName: String)
+
+  // define email entity
+  case class EmailRaw(parentName: String, typeName: String)
+
+  // define loan usage entity
+  case class LoanUsageRaw(parentName: String, typeName: String)
+
+  // define medium type entity
+  case class MediumTypeRaw(parentName: String, typeName: String)
+
+  // define risk level entity
+  case class RiskLevelRaw(parentName: String, levelName: String)
+
+  // define url entity
+  case class UrlRaw(parentName: String, urlName: String)
+
+  // define AccountHasAccountLevel relationship
+  case class AccountHasAccountLevelRaw(accountId: Long, accountLevelName: String)
+
+  // define AccountHasAccountType relationship
+  case class AccountHasAccountTypeRaw(accountId: Long, accountTypeName: String)
+
+  // define CompanyHasBusinessType relationship
+  case class CompanyHasBusinessTypeRaw(companyId: Long, businessTypeName: String)
+
+  // define CompanyBaseCity relationship
+  case class CompanyBaseCityRaw(companyId: Long, cityName: String)
+
+  // define PersonLiveInCity relationship
+  case class PersonLiveInCityRaw(personId: Long, cityName: String)
+
+  // define CompanyBaseCountry relationship
+  case class CompanyBaseCountryRaw(companyId: Long, countryName: String)
+
+  // define PersonLiveInCountry relationship
+  case class PersonLiveInCountryRaw(personId: Long, countryName: String)
+
+  // define AccountFreqLoginMediumType relationship
+  case class AccountFreqLoginMediumTypeRaw(accountId: Long, mediumTypeName: String)
+
+  // define AccountHasEmail relationship
+  case class AccountHasEmailRaw(accountId: Long, email: String)
+
+  // define CompanyHasUrl relationship
+  case class CompanyHasUrlRaw(companyId: Long, url: String)
+
+  // define LoanHasLoanUsage relationship
+  case class LoanHasLoanUsageRaw(loanId: Long, loadUsageType: String)
+
+  // define MediumHasMediumType relationship
+  case class MediumHasMediumTypeRaw(mediumId: Long, mediumTypeName: String)
+
+  // define MediumHasRiskLevel relationship
+  case class MediumHasRiskLevelRaw(mediumId: Long, riskLevelName: String)
+
   // define Person entity
   case class PersonRaw(
       id: Long,

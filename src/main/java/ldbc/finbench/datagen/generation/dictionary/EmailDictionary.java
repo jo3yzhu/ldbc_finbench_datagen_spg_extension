@@ -12,6 +12,10 @@ public class EmailDictionary {
     private final List<String> emails;
     private final List<Double> cumulativeDistribution;
 
+    public List<String> getResources() {
+        return emails;
+    }
+
     public EmailDictionary(String filePath, String separator) {
         try {
             BufferedReader emailDictionary = new BufferedReader(

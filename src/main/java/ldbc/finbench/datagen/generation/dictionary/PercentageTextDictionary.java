@@ -11,6 +11,10 @@ public class PercentageTextDictionary {
     private final List<String> resources;
     private final List<Double> cumulativeDistribution;
 
+    public List<String> getResources() {
+        return resources;
+    }
+
     public PercentageTextDictionary(String filePath, String separator) {
         resources = new ArrayList<>();
         cumulativeDistribution = new ArrayList<>();

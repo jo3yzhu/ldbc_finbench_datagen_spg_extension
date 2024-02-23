@@ -31,7 +31,8 @@ object LdbcDatagen extends SparkApp with Logging {
                    formatOptions: Map[String, String] = Map.empty,
                    epochMillis: Boolean = false,
                    generateFactors: Boolean = false,
-                   factorFormat: String = "parquet"
+                   factorFormat: String = "parquet",
+                   enableSPGExtension: Boolean = true
                  )
 
   override type ArgsType = Args
@@ -115,7 +116,6 @@ object LdbcDatagen extends SparkApp with Logging {
     }
 
     val parsedArgs = parser.parse(args, Args()).getOrElse(throw new RuntimeException("Invalid arguments"))
-
     run(parsedArgs)
   }
 
@@ -124,11 +124,25 @@ object LdbcDatagen extends SparkApp with Logging {
     val config = buildConfig(args)
     DatagenContext.initialize(config)
 
+    val extensionType: String = args.params.get("extension-type").getOrElse("")
+    val semanticNodesEnable: Boolean = extensionType.toLowerCase match {
+      case "lpg" => true
+      case "spg" => true
+      case _ => false
+    }
+    val semanticEdgesEnable: Boolean = extensionType.toLowerCase() match {
+      case "lpg" => true
+      case "spg" => false
+      case _ => false
+    }
+
     val generationArgs = GenerationStage.Args(
       scaleFactor = args.scaleFactor,
       outputDir = args.outputDir,
       format = args.format,
-      partitionsOpt = args.numPartitions
+      partitionsOpt = args.numPartitions,
+      semanticNodesEnable = semanticNodesEnable,
+      semanticEdgesEnable = semanticEdgesEnable
     )
     log.info("[Main] Starting generation stage")
     GenerationStage.run(generationArgs)

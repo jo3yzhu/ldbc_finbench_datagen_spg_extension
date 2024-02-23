@@ -4,11 +4,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
 public class CommonTextDictionary {
     private final TreeMap<Long, String> resources;
+
+    public Map<Long, String> getResources() {
+        return resources;
+    }
 
     public CommonTextDictionary(String filePath, String separator) {
         this.resources = new TreeMap<>();
