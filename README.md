@@ -10,7 +10,7 @@ The LDBC FinBench Data Generator (Datagen) produces the datasets for the [LDBC F
 
 We extended data schema following best practices for knowledge modeling in [OpenSPG document](https://openspg.yuque.com/ndx6g9/ns5nw2/gdaiwlgb8e7ms68s).
 
-![Extended Schema](https://raw.githubusercontent.com/FessGo/knowledge-graph-warehouse-bench/main/dataset/ldbc_finbench_datagen_spg_extension/extended-data-schema.png)
+![Extended Schema](https://raw.githubusercontent.com/jo3yzhu/ldbc_finbench_datagen_spg_extension/main/extended-data-schema.png)
 
 ### Extended Data Generator Implementation
 
